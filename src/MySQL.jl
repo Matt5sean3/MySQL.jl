@@ -12,6 +12,8 @@ module MySQL
     include(joinpath("api", "finish.jl"))
     include(joinpath("api", "prepare.jl"))
     include(joinpath("api", "misc.jl"))
+    include(joinpath("api", "fetch.jl"))
+    include(joinpath("api", "datastructures.jl"))
     include("dbi.jl")
 
     export MySQL5

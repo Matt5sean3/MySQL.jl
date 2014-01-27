@@ -85,7 +85,12 @@ function DBI.fetchdf(stmt::MySQLStatementHandle)
 end
 
 function DBI.fetchrow(stmt::MySQLStatementHandle)
+    mysql_res = mysql_stmt_result_metadata(stmt.ptr)
+    fields = mysql_fetch_fields(mysql_res)
+    #println(JMysqlField(unsafe_load(fields)))
+    println(show(JMysqlField(fields)))
     error("DBI API not fully implemented")
+    
 end
 
 function DBI.finish(stmt::MySQLStatementHandle)
