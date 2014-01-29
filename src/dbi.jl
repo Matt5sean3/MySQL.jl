@@ -84,11 +84,29 @@ function DBI.fetchdf(stmt::MySQLStatementHandle)
     error("DBI API not fully implemented")
 end
 
+
+
 function DBI.fetchrow(stmt::MySQLStatementHandle)
     mysql_res = mysql_stmt_result_metadata(stmt.ptr)
     fields = mysql_fetch_fields(mysql_res)
-    #println(JMysqlField(unsafe_load(fields)))
-    println(show(JMysqlField(fields)))
+    fields_count = mysql_num_fields(mysql_res)
+    #y = unsafe_load(fields)
+    jfields = Array(JMySQLField, fields_count)
+    cmysqlbinds = Array(CMySQLBind, fields_count)
+    jmysqlbinds = Array(JMySQLBind, fields_count)
+    for x in 1:fields_count
+        field = JMySQLField(unsafe_load(fields, x))
+        jfields[x] = field
+        buffer = Array(Uint8, field.max_length) 
+
+        jbind = JMySQLBind(field.field_type, buffer, field.max_length, 0, false,false, false)
+        cbind = CMySQLBind(jbind)
+        cmysqlbinds[x] = cbind
+        jmysqlbinds[x] = jbind
+    end 
+    mysql_stmt_bind_result(stmt.ptr, cmysqlbinds)
+    mysql_stmt_fetch(stmt.ptr) 
+    println(jmysqlbinds)
     error("DBI API not fully implemented")
     
 end

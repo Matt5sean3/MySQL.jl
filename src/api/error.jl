@@ -11,3 +11,6 @@ function mysql_error(mysqlptr::Ptr{Void})
                  (Ptr{Void}, ),
                  mysqlptr)
 end
+
+
+

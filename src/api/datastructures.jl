@@ -1,14 +1,42 @@
-immutable MySQLBind
-    buffer_type :: Uint
+type CMySQLBind
+    @unix_only buffer_type :: Uint
+    @windows_only buffer_type :: Uint32
     buffer :: Ptr{Uint8}
-    buffer_length :: Uint
-    length :: Ptr{Uint}
+    @unix_only buffer_length :: Uint
+    @windows_only buffer_length :: Uint32
+    @unix_only length :: Ptr{Uint}
+    @windows_only length :: Ptr{Uint32}
     is_null :: Ptr{Bool}
-    is_unsigned :: Ptr{Bool}
+    is_unsigned :: Bool
     error :: Ptr{Bool}
 end
 
-type CMysqlField
+type JMySQLBind
+    @unix_only buffer_type :: Uint
+    @windows_only buffer_type :: Uint32
+    buffer :: Array{Uint8}
+    @unix_only buffer_length :: Uint
+    @windows_only buffer_length :: Uint32
+    @unix_only length :: Uint
+    @windows_only length :: Uint32
+    is_null :: Bool
+    is_unsigned :: Bool
+    error :: Bool
+end
+
+function CMySQLBind(bind::JMySQLBind)
+    CMySQLBind(bind.buffer_type,
+               pointer_from_objref(bind.buffer),
+               bind.buffer_length,
+               pointer_from_objref(bind.length),
+               pointer_from_objref(bind.is_null),
+               bind.is_unsigned,
+               pointer_from_objref(bind.error)
+               )
+    end
+                
+
+type CMySQLField
     name :: Ptr{Uint8}
     org_name :: Ptr{Uint8}
     table :: Ptr{Uint8}
@@ -26,18 +54,18 @@ type CMysqlField
     db_length :: Uint32
     catalog_length :: Uint32
     def_length :: Uint32
-    flags :: Uint
-    decimals :: Uint
-    charsetnr :: Uint
+    flags :: Uint32
+    decimals :: Uint32
+    charsetnr :: Uint32
     field_type :: Uint #type in C struct
     extension :: Ptr{Void}
 end
 
-type JMysqlField
-    c_mysql_field :: CMysqlField
+type JMySQLField
+    c_mysql_field :: CMySQLField
     name :: String
     table :: String
-    def :: String
+#    def :: String
     field_type :: Uint
     length :: Uint
     max_length :: Uint
@@ -46,18 +74,13 @@ type JMysqlField
     charsetnr :: Uint
 end
 
-function JMysqlField(pt::Ptr{CMysqlField})
-    cfield = unsafe_ref(pt+1)
-    println(cfield.name)
-    println(bytestring(cfield.name))
-    println(cfield.table)
-    println(bytestring(cfield.table))
-    println(cfield.def)
-    def = cfield.def == C_NULL? "" :bytestring(cfield.def)
-        JMysqlField(cfield, 
+#function JMysqlField(pt::Ptr{CMysqlField})
+function JMySQLField(cfield::CMySQLField)
+#    def = cfield.def == C_NULL? "" :bytestring(cfield.def)
+        JMySQLField(cfield, 
                     bytestring(cfield.name), 
                     bytestring(cfield.table),
-                    def, 
+#                    def, 
                     cfield.field_type, 
                     cfield.length, 
                     cfield.max_length, 
@@ -67,11 +90,10 @@ function JMysqlField(pt::Ptr{CMysqlField})
                     )
 end
 
-function show(field::JMysqlField)
+function show(field::JMySQLField)
     return "MYSQL_FIELD Object
 name=$(field.name)
 table=$(field.table)
-def=$(field.def)
 field_type=$(field.field_type)
 length=$(field.length)
 max_length=$(field.max_length)

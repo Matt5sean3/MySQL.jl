@@ -24,8 +24,8 @@ function mysql_stmt_prepare(stmtptr::Ptr{Void}, sql::String)
 end
 
 function mysql_stmt_error(stmtptr::Ptr{Void})
-    return ccall((:mysql_stmt_error, mysql_lib),
+    return bytestring(ccall((:mysql_stmt_error, mysql_lib),
                  Ptr{Uint8},
                  (Ptr{Void}, ),
-                 stmtptr)
+                 stmtptr))
 end
