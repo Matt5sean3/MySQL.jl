@@ -85,29 +85,56 @@ function DBI.fetchdf(stmt::MySQLStatementHandle)
 end
 
 
+function fetch_column_meta(stmt::MySQLStatementHandle)
+    println("fetch meta")
+    if stmt.stored == false
 
-function DBI.fetchrow(stmt::MySQLStatementHandle)
+        mysql_stmt_attr_set(stmt.ptr, STMT_ATTR_UPDATE_MAX_LENGTH, int8(1))
+        println("attr set")
+        mysql_stmt_store_result(stmt.ptr)
+        println("store result")
+        stmt.stored = true
+    end
     mysql_res = mysql_stmt_result_metadata(stmt.ptr)
     fields = mysql_fetch_fields(mysql_res)
     fields_count = mysql_num_fields(mysql_res)
     #y = unsafe_load(fields)
     jfields = Array(JMySQLField, fields_count)
-    cmysqlbinds = Array(CMySQLBind, fields_count)
-    jmysqlbinds = Array(JMySQLBind, fields_count)
+    #cmysqlbinds = Array(CMySQLBind, fields_count)
+    #jmysqlbinds = Array(JMySQLBind, fields_count)
+    cmysqlbinds = CMySQLBind[]
+    jmysqlbinds = JMySQLBind[]
     for x in 1:fields_count
         field = JMySQLField(unsafe_load(fields, x))
         jfields[x] = field
+        println(field.max_length)
         buffer = Array(Uint8, field.max_length) 
+        #buffer = uint(0)
 
         jbind = JMySQLBind(field.field_type, buffer, field.max_length, 0, false,false, false)
         cbind = CMySQLBind(jbind)
-        cmysqlbinds[x] = cbind
-        jmysqlbinds[x] = jbind
+        #cmysqlbinds[x] = cbind
+        #jmysqlbinds[x] = jbind
+        push!(cmysqlbinds, cbind)
+        push!(jmysqlbinds, jbind)
     end 
     mysql_stmt_bind_result(stmt.ptr, cmysqlbinds)
+    return cmysqlbinds, jmysqlbinds
+end
+
+function DBI.fetchrow(stmt::MySQLStatementHandle)
+    cmysqlbinds, jmysqlbinds = fetch_column_meta(stmt)
+    println("bound")
     mysql_stmt_fetch(stmt.ptr) 
-    println(jmysqlbinds)
-    error("DBI API not fully implemented")
+    println("fetched")
+    #println(jmysqlbinds[0].buffer_type)
+    #println(bytestring(cmysqlbinds[0].buffer))
+    println((cmysqlbinds[1].buffer))
+    println(unsafe_pointer_to_objref(cmysqlbinds[1].buffer))
+    #println(jmysqlbinds[1])
+    #println(int32(jmysqlbinds[1].buffer))
+    #println(show(jmysqlbinds[1]))
+    #error("DBI API not fully implemented")
     
 end
 

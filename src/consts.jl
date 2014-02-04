@@ -1,5 +1,5 @@
 const mysql_lib = isfile("/usr/lib/libmysqlclient.so")?"/usr/lib/libmysqlclient.so":"/usr/local/mysql/lib/libmysqlclient.dylib"
-
+const STMT_ATTR_UPDATE_MAX_LENGTH = 0
 const CR_UNKNOWN_ERROR = 2000 #Message: Unknown MySQL error
 const CR_SOCKET_CREATE_ERROR = 2001 #Message: Can't create UNIX socket (%d)
 const CR_CONNECTION_ERROR = 2002 #Message: Can't connect to local MySQL server through socket '%s'

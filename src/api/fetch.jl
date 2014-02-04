@@ -1,5 +1,6 @@
 function mysql_stmt_bind_result(stmtptr::Ptr{Void}, bindarray::Array{CMySQLBind,1})
     println("before execution") 
+    println(bindarray)
     val = ccall((:mysql_stmt_bind_result, mysql_lib),
                  Cint, # TODO: Confirm proper type to use here
                  (Ptr{Void}, Ptr{Void}),
@@ -18,7 +19,30 @@ function mysql_stmt_result_metadata(stmtptr::Ptr{Void})
                  Ptr{Void}, # TODO: Confirm proper type to use here
                  (Ptr{Void}, ),
                  stmtptr)
+    end
+
+function mysql_stmt_attr_set(stmtptr::Ptr{Void}, update_max_length::Int, value::Int8)
+    
+    val = ccall((:mysql_stmt_attr_set, mysql_lib),
+                 Cint, # TODO: Confirm proper type to use here
+                 (Ptr{Void}, Cint, Ptr{Void}),
+                 stmtptr, update_max_length, pointer_from_objref(value))
 end
+
+function  mysql_stmt_store_result(stmtptr::Ptr{Void})
+    
+    val = ccall((:mysql_stmt_store_result, mysql_lib),
+                 Cint, # TODO: Confirm proper type to use here
+                 (Ptr{Void}, ),
+                 stmtptr)
+    if val != 0
+        message = mysql_stmt_error(stmtptr)
+        error(message)
+    end
+    val
+end
+
+
 
 function mysql_fetch_fields(mysql_res::Ptr{Void})
     

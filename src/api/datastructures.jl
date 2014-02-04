@@ -1,20 +1,34 @@
 type CMySQLBind
-    @unix_only buffer_type :: Uint
-    @windows_only buffer_type :: Uint32
-    buffer :: Ptr{Uint8}
-    @unix_only buffer_length :: Uint
-    @windows_only buffer_length :: Uint32
     @unix_only length :: Ptr{Uint}
     @windows_only length :: Ptr{Uint32}
     is_null :: Ptr{Bool}
-    is_unsigned :: Bool
+    buffer :: Ptr{Void}
     error :: Ptr{Bool}
+    row_ptr :: Ptr{Uint8}
+    store_param_func :: Ptr{Void}
+    fetch_result :: Ptr{Void}
+    skip_result :: Ptr{Void}
+    @unix_only buffer_length :: Uint
+    @windows_only buffer_length :: Uint32
+    @unix_only offset :: Uint
+    @windows_only offset :: Uint32
+    @unix_only length_value :: Uint
+    @windows_only length_value :: Uint32
+    param_number :: Uint32
+    pack_length :: Uint32
+    @unix_only buffer_type :: Uint32#Uint
+    @windows_only buffer_type :: Uint32#Uint32
+    error_value :: Bool
+    is_unsigned :: Bool
+    long_data_used :: Bool
+    is_null_value :: Bool
+    extension :: Ptr{Void}
 end
 
 type JMySQLBind
     @unix_only buffer_type :: Uint
     @windows_only buffer_type :: Uint32
-    buffer :: Array{Uint8}
+    buffer :: Any
     @unix_only buffer_length :: Uint
     @windows_only buffer_length :: Uint32
     @unix_only length :: Uint
@@ -25,17 +39,34 @@ type JMySQLBind
 end
 
 function CMySQLBind(bind::JMySQLBind)
-    CMySQLBind(bind.buffer_type,
-               pointer_from_objref(bind.buffer),
-               bind.buffer_length,
+    CMySQLBind(
                pointer_from_objref(bind.length),
                pointer_from_objref(bind.is_null),
+               pointer_from_objref(bind.buffer),
+               pointer_from_objref(bind.error),
+               C_NULL,
+               C_NULL,
+               C_NULL,
+               C_NULL,
+               bind.buffer_length,
+               0,0,0,0,
+               bind.buffer_type,
+               false,
                bind.is_unsigned,
-               pointer_from_objref(bind.error)
+               false,
+               false,
+               C_NULL
                )
     end
                 
-
+function show(jbind::JMySQLBind)
+    return "buffer_type=$(Uint(jbind.buffer_type))
+            buffer=$(int(bytestring(jbind.buffer)))
+            length=$(jbind.length)
+            is_unsigned=$(jbind.is_unsigned)
+            error=$(jbind.error)
+            "
+    end
 type CMySQLField
     name :: Ptr{Uint8}
     org_name :: Ptr{Uint8}
