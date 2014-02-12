@@ -13,4 +13,9 @@ function mysql_error(mysqlptr::Ptr{Void})
 end
 
 
-
+function mysql_debug(options::String)
+    return ccall((:mysql_debug, mysql_lib),
+                Void,
+                (Ptr{Uint8},),
+                options)
+end

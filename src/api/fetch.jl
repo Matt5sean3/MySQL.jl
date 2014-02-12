@@ -7,6 +7,7 @@ function mysql_stmt_bind_result(stmtptr::Ptr{Void}, bindarray::Array{CMySQLBind,
                  stmtptr, bindarray)
     println("after execution") 
     if val != 0
+        println(mysql_stmt_errno(stmtptr))
         message = mysql_stmt_error(stmtptr)
         error(message)
     end

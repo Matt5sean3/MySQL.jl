@@ -29,3 +29,12 @@ function mysql_stmt_error(stmtptr::Ptr{Void})
                  (Ptr{Void}, ),
                  stmtptr))
 end
+
+function mysql_stmt_errno(stmtptr::Ptr{Void})
+    return ccall((:mysql_stmt_errno, mysql_lib),
+                 Uint32, # TODO: Confirm proper type to use here
+                 (Ptr{Void}, ),
+                 stmtptr)
+end
+
+

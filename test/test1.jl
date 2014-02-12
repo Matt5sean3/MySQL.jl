@@ -4,7 +4,7 @@ using MySQL
 db = connect(MySQL5, "localhost", "test", "test123", "julia")
 
 sql = "CREATE TABLE if not exists users (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))"
-
+mysql_debug("d:t:O,/tmp/juliaclient.trace")
 stmt = prepare(db, sql)
 execute(stmt)
 

@@ -16,5 +16,5 @@ module MySQL
     include(joinpath("api", "fetch.jl"))
     include("dbi.jl")
 
-    export MySQL5
+    export MySQL5, mysql_debug
 end

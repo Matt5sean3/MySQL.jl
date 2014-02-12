@@ -91,8 +91,6 @@ function fetch_column_meta(stmt::MySQLStatementHandle)
 
         mysql_stmt_attr_set(stmt.ptr, STMT_ATTR_UPDATE_MAX_LENGTH, int8(1))
         println("attr set")
-        mysql_stmt_store_result(stmt.ptr)
-        println("store result")
         stmt.stored = true
     end
     mysql_res = mysql_stmt_result_metadata(stmt.ptr)
@@ -105,12 +103,15 @@ function fetch_column_meta(stmt::MySQLStatementHandle)
     cmysqlbinds = CMySQLBind[]
     jmysqlbinds = JMySQLBind[]
     for x in 1:fields_count
+        println(unsafe_load(fields, x))
         field = JMySQLField(unsafe_load(fields, x))
         jfields[x] = field
-        println(field.max_length)
-        buffer = Array(Uint8, field.max_length) 
-        #buffer = uint(0)
-
+        println(show(field))
+        #buffer = Array(Uint8, field.max_length) 
+        buffer = int(0)
+        println("Pointertype")
+        println(pointer_from_objref(buffer))
+        
         jbind = JMySQLBind(field.field_type, buffer, field.max_length, 0, false,false, false)
         cbind = CMySQLBind(jbind)
         #cmysqlbinds[x] = cbind
@@ -119,6 +120,8 @@ function fetch_column_meta(stmt::MySQLStatementHandle)
         push!(jmysqlbinds, jbind)
     end 
     mysql_stmt_bind_result(stmt.ptr, cmysqlbinds)
+    mysql_stmt_store_result(stmt.ptr)
+    println("store result")
     return cmysqlbinds, jmysqlbinds
 end
 

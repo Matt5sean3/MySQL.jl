@@ -79,6 +79,7 @@ type CMySQLField
     @windows_only max_length :: Uint32
     @unix_only length :: Uint
     @unix_only max_length :: Uint
+    name_length :: Uint32
     org_name_length :: Uint32
     table_length :: Uint32
     org_table_length :: Uint32
