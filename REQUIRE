@@ -1,0 +1,5 @@
+DataArrays
+DataFrames
+# DBI can be found at https://github.com/JuliaDB/DBI.jl.git
+# Support for requiring non-registered packages from other non-registered packs
+# appears to be a planned future feature
