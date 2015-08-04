@@ -1,4 +1,20 @@
-const mysql_lib = isfile("/usr/lib/libmysqlclient.so")?"/usr/lib/libmysqlclient.so":"/usr/local/mysql/lib/libmysqlclient.dylib"
+function search_for_mysql_lib()
+  directories = [
+    "/usr/lib", # Mainline Linux?
+    "/usr/lib/x86_64-linux-gnu", # Ubuntu Linux 64
+    "/usr/local/mysql/lib" # Mac OSX?
+    ]
+  # Sort of a line heavy in meaning but in short:
+  # Finds all files in the listed directories matching the regex
+  idxs = find(isdir, directories)
+  matches = 
+    map(y -> y[find(x -> ismatch(r"^libmysqlclient\.(so|dylib)?\.*", x), y)], 
+    map(readdir, directories[idxs]))
+  possibilities = String[]
+  map(idx -> append!(possibilities, map(fname -> joinpath(directories[idx], fname), matches[idx])), idxs)
+  return possibilities[]
+end
+const mysql_lib = search_for_mysql_lib()
 const STMT_ATTR_UPDATE_MAX_LENGTH = 0
 const CR_UNKNOWN_ERROR = 2000 #Message: Unknown MySQL error
 const CR_SOCKET_CREATE_ERROR = 2001 #Message: Can't create UNIX socket (%d)
