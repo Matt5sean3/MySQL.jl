@@ -3,7 +3,3 @@ DataFrames
 # DBI can be found at https://github.com/JuliaDB/DBI.jl.git
 # Support for requiring non-registered packages from other non-registered packs
 # appears to be a planned future feature
-
-# Needs system specific mysql-client package
-@linux mysql-client
-# TODO: configure system specific package directions for Mac OS X and Windows
