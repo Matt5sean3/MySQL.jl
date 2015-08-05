@@ -8,7 +8,7 @@ function search_for_mysql_lib()
   # Finds all files in the listed directories matching the regex
   idxs = find(isdir, directories)
   matches = 
-    map(y -> y[find(x -> ismatch(r"^libmysqlclient\.(so|dylib)?\.*", x), y)], 
+    map(y -> y[find(x -> ismatch(r"^libmysqlclient\.(so|dylib)", x), y)], 
     map(readdir, directories[idxs]))
   possibilities = String[]
   map(idx -> append!(possibilities, map(fname -> joinpath(directories[idx], fname), matches[idx])), idxs)
